@@ -1,4 +1,4 @@
-module record-collection
+module record-collection-backend
 
 go 1.18
 

@@ -1,0 +1,82 @@
+[
+    {
+        "title": "Sgt. Pepper's Lonely Hearts Club Band",
+        "artist": "The Beatles",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1967-05-26"
+    },
+    {
+        "title": "Dark Side of the Moon",
+        "artist": "Pink Floyd",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1973-03-01"
+    },
+    {
+        "title": "Led Zeppelin IV",
+        "artist": "Led Zeppelin",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1971-11-08"
+    },
+    {
+        "title": "The Rise and Fall of Ziggy Stardust and the Spiders from Mars",
+        "artist": "David Bowie",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1972-06-16"
+    },
+    {
+        "title": "Rumours",
+        "artist": "Fleetwood Mac",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1977-02-04"
+    },
+    {
+        "title": "Nevermind",
+        "artist": "Nirvana",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1991-09-24"
+    },
+    {
+        "title": "Exile on Main St.",
+        "artist": "The Rolling Stones",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1972-05-12"
+    },
+    {
+        "title": "The Beatles (The White Album)",
+        "artist": "The Beatles",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1968-11-22"
+    },
+    {
+        "title": "The Wall",
+        "artist": "Pink Floyd",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1979-11-30"
+    },
+    {
+        "title": "Hotel California",
+        "artist": "The Eagles",
+        "media": "Vinyl",
+        "format": "LP",
+        "available": true,
+        "date_published": "1976-12-08"
+    }
+]

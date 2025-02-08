@@ -1,0 +1,26 @@
+[
+    {
+        "name": "LP",
+        "description": "Long Play"
+    },
+    {
+        "name": "EP",
+        "description": "Extended Play"
+    },
+    {
+        "name": "Single",
+        "description": "Single"
+    },
+    {
+        "name": "CD",
+        "description": "Compact Disc"
+    },
+    {
+        "name": "Blu-ray",
+        "description": "Blu-ray Disc"
+    },
+    {
+        "name": "DVD",
+        "description": "Digital Versatile Disc"
+    }
+]

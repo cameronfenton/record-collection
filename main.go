@@ -8,6 +8,11 @@ import (
 )
 
 func main() {
+	config, err := loadConfig()
+	if err != nil {
+		log.Fatal("Failed to load config:", err)
+	}
+
 	initDB()
 	defer db.Close()
 
@@ -17,5 +22,6 @@ func main() {
 	router.HandleFunc("/records/{id}", updateRecord).Methods("PUT")
 	router.HandleFunc("/records/{id}", deleteRecord).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Printf("Starting server on port %s...", config.ServerPort)
+	log.Fatal(http.ListenAndServe(":"+config.ServerPort, router))
 }
