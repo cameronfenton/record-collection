@@ -1,0 +1,7 @@
+{
+    "db_user": "your_db_user",
+    "db_password": "your_db_password",
+    "db_name": "recordcollection",
+    "db_host": "localhost",
+    "db_port": "3306"
+}
