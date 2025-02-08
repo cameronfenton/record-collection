@@ -1,2 +1,2 @@
-# record-collection
-An application for keeping track of my record collection.
+# record-collection backend
+An application for keeping track of my record and media collection.
