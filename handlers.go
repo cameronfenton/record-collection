@@ -10,21 +10,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// createRecord handles the creation of a new record
-func createRecord(w http.ResponseWriter, r *http.Request) {
-	var record Album
-	err := json.NewDecoder(r.Body).Decode(&record)
+// createMedia handles the creation of a new media
+func createMedia(w http.ResponseWriter, r *http.Request) {
+	var m Media
+	err := json.NewDecoder(r.Body).Decode(&m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Convert genre tags to a comma-separated string
-	genreTags := strings.Join(record.GenreTags, ",")
+	genreTags := strings.Join(m.GenreTags, ",")
 
 	// Insert artist if it doesn't exist and get artist_id
 	var artistID int
-	err = db.QueryRow(`SELECT id FROM artists WHERE id = ?`, record.ArtistID).Scan(&artistID)
+	err = db.QueryRow(`SELECT id FROM artists WHERE id = ?`, m.ArtistID).Scan(&artistID)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Artist not found", http.StatusBadRequest)
 		return
@@ -33,9 +33,9 @@ func createRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Insert record into media table
+	// Insert media into media table
 	_, err = db.Exec(`INSERT INTO media (title, date_published, image_url, genre_tags, artist_id, format_id) VALUES (?, ?, ?, ?, ?, ?)`,
-		record.Title, record.DatePublished, record.ImageURL, genreTags, artistID, record.FormatID)
+		m.Title, m.DatePublished, m.ImageURL, genreTags, artistID, m.FormatID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,53 +44,85 @@ func createRecord(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// getRecord handles retrieving a record by ID
-func getRecord(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+// getMedia handles retrieving all media
+func getMedia(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query(`SELECT id, title, date_published, image_url, genre_tags, artist_id, format_id FROM media`)
 	if err != nil {
-		http.Error(w, "Invalid record ID", http.StatusBadRequest)
+		http.Error(w, "Failed to retrieve media", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var media []Media
+
+	for rows.Next() {
+		var m Media
+		var genreTags string
+		if err := rows.Scan(&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags, &m.ArtistID, &m.FormatID); err != nil {
+			http.Error(w, "Failed to scan media", http.StatusInternalServerError)
+			return
+		}
+		// Split genre tags string into a slice
+		m.GenreTags = strings.Split(genreTags, ",")
+		media = append(media, m)
+	}
+
+	if err := rows.Err(); err != nil {
+		http.Error(w, "Error iterating over media", http.StatusInternalServerError)
 		return
 	}
 
-	var record Album
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(media)
+}
+
+// getMediaById handles retrieving a media by ID
+func getMediaById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid media ID", http.StatusBadRequest)
+		return
+	}
+
+	var m Media
 	var genreTags string
 	err = db.QueryRow(`SELECT id, title, date_published, image_url, genre_tags, artist_id, format_id FROM media WHERE id = ?`, id).
-		Scan(&record.ID, &record.Title, &record.DatePublished, &record.ImageURL, &genreTags, &record.ArtistID, &record.FormatID)
+		Scan(&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags, &m.ArtistID, &m.FormatID)
 	if err != nil {
-		http.Error(w, "Record not found", http.StatusNotFound)
+		http.Error(w, "media not found", http.StatusNotFound)
 		return
 	}
 
 	// Split genre tags string into a slice
-	record.GenreTags = strings.Split(genreTags, ",")
+	m.GenreTags = strings.Split(genreTags, ",")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(record)
+	json.NewEncoder(w).Encode(m)
 }
 
-// updateRecord handles updating an existing record by ID
-func updateRecord(w http.ResponseWriter, r *http.Request) {
+// updateMedia handles updating an existing media by ID
+func updateMedia(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(w, "Invalid record ID", http.StatusBadRequest)
+		http.Error(w, "Invalid media ID", http.StatusBadRequest)
 		return
 	}
 
-	var record Album
-	err = json.NewDecoder(r.Body).Decode(&record)
+	var m Media
+	err = json.NewDecoder(r.Body).Decode(&m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Convert genre tags to a comma-separated string
-	genreTags := strings.Join(record.GenreTags, ",")
+	genreTags := strings.Join(m.GenreTags, ",")
 
 	// Ensure the artist exists
 	var artistID int
-	err = db.QueryRow(`SELECT id FROM artists WHERE id = ?`, record.ArtistID).Scan(&artistID)
+	err = db.QueryRow(`SELECT id FROM artists WHERE id = ?`, m.ArtistID).Scan(&artistID)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Artist not found", http.StatusBadRequest)
 		return
@@ -99,9 +131,9 @@ func updateRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update the record in the media table
+	// Update the media in the media table
 	_, err = db.Exec(`UPDATE media SET title = ?, date_published = ?, image_url = ?, genre_tags = ?, artist_id = ?, format_id = ? WHERE id = ?`,
-		record.Title, record.DatePublished, record.ImageURL, genreTags, artistID, record.FormatID, id)
+		m.Title, m.DatePublished, m.ImageURL, genreTags, artistID, m.FormatID, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -110,12 +142,12 @@ func updateRecord(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// deleteRecord handles deleting a record by ID
-func deleteRecord(w http.ResponseWriter, r *http.Request) {
+// deleteMedia handles deleting a media by ID
+func deleteMedia(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(w, "Invalid record ID", http.StatusBadRequest)
+		http.Error(w, "Invalid media ID", http.StatusBadRequest)
 		return
 	}
 

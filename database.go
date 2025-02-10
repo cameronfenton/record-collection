@@ -134,19 +134,19 @@ func importMediaByFile(filename string) {
 	}
 	defer file.Close()
 
-	var albums []Album
+	var media []Media
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&albums)
+	err = decoder.Decode(&media)
 	if err != nil {
 		log.Fatal("Failed to decode JSON file:", err)
 	}
 
-	for _, album := range albums {
+	for _, m := range media {
 		var artistID int
-		err := db.QueryRow(`SELECT id FROM artists WHERE name = ?`, album.Artist).Scan(&artistID)
+		err := db.QueryRow(`SELECT id FROM artists WHERE name = ?`, m.Artist).Scan(&artistID)
 		if err == sql.ErrNoRows {
 			// Artist not found, insert new artist
-			result, err := db.Exec(`INSERT INTO artists (name) VALUES (?)`, album.Artist)
+			result, err := db.Exec(`INSERT INTO artists (name) VALUES (?)`, m.Artist)
 			if err != nil {
 				log.Fatal("Failed to insert artist:", err)
 			}
@@ -160,15 +160,15 @@ func importMediaByFile(filename string) {
 		}
 
 		var formatID int
-		err = db.QueryRow(`SELECT id FROM formats WHERE name = ?`, album.Format).Scan(&formatID)
+		err = db.QueryRow(`SELECT id FROM formats WHERE name = ?`, m.Format).Scan(&formatID)
 		if err == sql.ErrNoRows {
-			log.Fatal("Format not found:", album.Format)
+			log.Fatal("Format not found:", m.Format)
 		} else if err != nil {
 			log.Fatal("Failed to query format:", err)
 		}
 
 		_, err = db.Exec(`INSERT INTO media (title, date_published, image_url, genre_tags, artist_id, format_id) VALUES (?, ?, ?, ?, ?, ?)`,
-			album.Title, album.DatePublished, album.ImageURL, strings.Join(album.GenreTags, ","), artistID, formatID)
+			m.Title, m.DatePublished, m.ImageURL, strings.Join(m.GenreTags, ","), artistID, formatID)
 		if err != nil {
 			if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
 				continue

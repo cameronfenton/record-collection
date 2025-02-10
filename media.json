@@ -5,7 +5,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1967-05-26"
+        "date_published": "1967-05-26",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Sgt._Pepper%27s_Lonely_Hearts_Club_Band.jpg/227px-Sgt._Pepper%27s_Lonely_Hearts_Club_Band.jpg"
     },
     {
         "title": "Dark Side of the Moon",
@@ -13,7 +14,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1973-03-01"
+        "date_published": "1973-03-01",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png"
     },
     {
         "title": "Led Zeppelin IV",
@@ -21,7 +23,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1971-11-08"
+        "date_published": "1971-11-08",
+        "image_url": "https://i.discogs.com/KKjg5uNSXStjCh2jSKjlt5lt6a063AlYHaY-tN8DDHY/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU2ODgx/ODUtMTU0MjQwMjg2/NC00MDI3LmpwZWc.jpeg"
     },
     {
         "title": "The Rise and Fall of Ziggy Stardust and the Spiders from Mars",
@@ -29,7 +32,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1972-06-16"
+        "date_published": "1972-06-16",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/0/01/ZiggyStardust.jpg"
     },
     {
         "title": "Rumours",
@@ -37,15 +41,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1977-02-04"
-    },
-    {
-        "title": "Nevermind",
-        "artist": "Nirvana",
-        "media": "Vinyl",
-        "format": "LP",
-        "available": true,
-        "date_published": "1991-09-24"
+        "date_published": "1977-02-04",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/f/fb/FMacRumours.PNG"
     },
     {
         "title": "Exile on Main St.",
@@ -53,7 +50,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1972-05-12"
+        "date_published": "1972-05-12",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/c/ca/ExileMainSt.jpg/220px-ExileMainSt.jpg"
     },
     {
         "title": "The Beatles (The White Album)",
@@ -61,7 +59,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1968-11-22"
+        "date_published": "1968-11-22",
+        "image_url": "https://www.fiveriserecords.co.uk/wp-content/uploads/2021/01/the-beatles-the-white-album.jpg"
     },
     {
         "title": "The Wall",
@@ -69,7 +68,8 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1979-11-30"
+        "date_published": "1979-11-30",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/1/13/Pink_Floyd_-_The_Wall_cover.jpg"
     },
     {
         "title": "Hotel California",
@@ -77,6 +77,7 @@
         "media": "Vinyl",
         "format": "LP",
         "available": true,
-        "date_published": "1976-12-08"
+        "date_published": "1976-12-08",
+        "image_url": "https://upload.wikimedia.org/wikipedia/en/4/49/Hotelcalifornia.jpg"
     }
 ]

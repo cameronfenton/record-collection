@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -17,11 +18,23 @@ func main() {
 	defer db.Close()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/records", createRecord).Methods("POST")
-	router.HandleFunc("/records/{id}", getRecord).Methods("GET")
-	router.HandleFunc("/records/{id}", updateRecord).Methods("PUT")
-	router.HandleFunc("/records/{id}", deleteRecord).Methods("DELETE")
+	router.HandleFunc("/media", createMedia).Methods("POST")
+	router.HandleFunc("/media", getMedia).Methods("GET")
+	router.HandleFunc("/media/{id}", getMediaById).Methods("GET")
+	router.HandleFunc("/media/{id}", updateMedia).Methods("PUT")
+	router.HandleFunc("/media/{id}", deleteMedia).Methods("DELETE")
+
+	// Configure CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+
+	// Add the CORS middleware to the router
+	handler := c.Handler(router)
 
 	log.Printf("Starting server on port %s...", config.ServerPort)
-	log.Fatal(http.ListenAndServe(":"+config.ServerPort, router))
+	log.Fatal(http.ListenAndServe(":"+config.ServerPort, handler)) // Use handler instead of router
 }

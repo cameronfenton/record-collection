@@ -14,15 +14,15 @@ type Config struct {
 	ServerPort string `json:"server_port"`
 }
 
-// Album struct holds the format dettails
+// Album struct holds the format details
 type Format struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-// Album struct holds the album details
-type Album struct {
+// Media struct holds the media details
+type Media struct {
 	ID            int      `json:"id"`
 	Title         string   `json:"title"`
 	ArtistID      string   `json:"artist_id"`
