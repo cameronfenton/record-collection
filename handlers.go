@@ -46,7 +46,14 @@ func createMedia(w http.ResponseWriter, r *http.Request) {
 
 // getMedia handles retrieving all media
 func getMedia(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query(`SELECT id, title, date_published, image_url, genre_tags, artist_id, format_id FROM media`)
+	rows, err := db.Query(`
+        SELECT 
+            m.id, m.title, m.date_published, m.image_url, m.genre_tags, 
+            m.artist_id, a.name, m.format_id, f.name
+        FROM media m 
+        JOIN artists a ON m.artist_id = a.id
+        JOIN formats f ON m.format_id = f.id
+    `)
 	if err != nil {
 		http.Error(w, "Failed to retrieve media", http.StatusInternalServerError)
 		return
@@ -58,7 +65,10 @@ func getMedia(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var m Media
 		var genreTags string
-		if err := rows.Scan(&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags, &m.ArtistID, &m.FormatID); err != nil {
+		if err := rows.Scan(
+			&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags,
+			&m.ArtistID, &m.ArtistName, &m.FormatID, &m.FormatName,
+		); err != nil {
 			http.Error(w, "Failed to scan media", http.StatusInternalServerError)
 			return
 		}
@@ -87,10 +97,24 @@ func getMediaById(w http.ResponseWriter, r *http.Request) {
 
 	var m Media
 	var genreTags string
-	err = db.QueryRow(`SELECT id, title, date_published, image_url, genre_tags, artist_id, format_id FROM media WHERE id = ?`, id).
-		Scan(&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags, &m.ArtistID, &m.FormatID)
+	err = db.QueryRow(`
+        SELECT 
+            m.id, m.title, m.date_published, m.image_url, m.genre_tags, 
+            m.artist_id, a.name, m.format_id, f.name
+        FROM media m 
+        JOIN artists a ON m.artist_id = a.id
+        JOIN formats f ON m.format_id = f.id
+        WHERE m.id = ?
+    `, id).Scan(
+		&m.ID, &m.Title, &m.DatePublished, &m.ImageURL, &genreTags,
+		&m.ArtistID, &m.ArtistName, &m.FormatID, &m.FormatName,
+	)
 	if err != nil {
-		http.Error(w, "media not found", http.StatusNotFound)
+		if err == sql.ErrNoRows {
+			http.Error(w, "Media not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Failed to retrieve media", http.StatusInternalServerError)
+		}
 		return
 	}
 

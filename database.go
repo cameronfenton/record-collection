@@ -57,11 +57,42 @@ func connectToDatabase(config *Config) error {
 // createTables creates the necessary tables if they do not exist
 func createTables() {
 	createTableQueries := []string{
-		`CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY);`,
+		`CREATE TABLE IF NOT EXISTS users (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			first_name TEXT,
+			last_name TEXT,
+			username TEXT,
+			email TEXT,
+			password TEXT
+		);`,
 		`CREATE TABLE IF NOT EXISTS artists (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT);`,
 		`CREATE TABLE IF NOT EXISTS formats (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT, description TEXT);`,
-		`CREATE TABLE IF NOT EXISTS media (id INT AUTO_INCREMENT PRIMARY KEY, title TEXT, date_published DATE, image_url TEXT, genre_tags TEXT, artist_id INT, format_id INT, CONSTRAINT fk_media_artist FOREIGN KEY (artist_id) REFERENCES artists(id), CONSTRAINT fk_media_format FOREIGN KEY (format_id) REFERENCES formats(id), CONSTRAINT unique_media UNIQUE (title(255), artist_id, format_id));`,
-		`CREATE TABLE IF NOT EXISTS user_media (user_id INT, media_id INT, format_id INT, PRIMARY KEY (user_id, media_id, format_id), CONSTRAINT fk_user_media_user FOREIGN KEY (user_id) REFERENCES users(id), CONSTRAINT fk_user_media_media FOREIGN KEY (media_id) REFERENCES media(id), CONSTRAINT fk_user_media_format FOREIGN KEY (format_id) REFERENCES formats(id));`,
+		`CREATE TABLE IF NOT EXISTS media (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			title TEXT,
+			date_published DATE,
+			image_url TEXT,
+			genre_tags TEXT,
+			artist_id INT,
+			format_id INT,
+			CONSTRAINT fk_media_artist FOREIGN KEY (artist_id) REFERENCES artists(id),
+			CONSTRAINT fk_media_format FOREIGN KEY (format_id) REFERENCES formats(id),
+			CONSTRAINT unique_media UNIQUE (title(255), artist_id, format_id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS user_media (
+			user_id INT,
+			media_id INT,
+			format_id INT,
+			PRIMARY KEY (user_id, media_id, format_id),
+			CONSTRAINT fk_user_media_user FOREIGN KEY (user_id) REFERENCES users(id),
+			CONSTRAINT fk_user_media_media FOREIGN KEY (media_id) REFERENCES media(id),
+			CONSTRAINT fk_user_media_format FOREIGN KEY (format_id) REFERENCES formats(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS genre_mappings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        genre VARCHAR(255) NOT NULL,
+        normalized_genre VARCHAR(255) NOT NULL
+    )`,
 	}
 	for _, query := range createTableQueries {
 		_, err := db.Exec(query)
@@ -79,6 +110,11 @@ func createTables() {
 	checkAndAddColumn("media", "genre_tags", "TEXT")
 	checkAndAddColumn("media", "artist_id", "INT")
 	checkAndAddColumn("media", "format_id", "INT")
+	checkAndAddColumn("users", "first_name", "TEXT")
+	checkAndAddColumn("users", "last_name", "TEXT")
+	checkAndAddColumn("users", "username", "TEXT")
+	checkAndAddColumn("users", "email", "TEXT")
+	checkAndAddColumn("users", "password", "TEXT")
 }
 
 // checkAndAddColumn checks if a column exists and adds it if it doesn't
@@ -143,10 +179,10 @@ func importMediaByFile(filename string) {
 
 	for _, m := range media {
 		var artistID int
-		err := db.QueryRow(`SELECT id FROM artists WHERE name = ?`, m.Artist).Scan(&artistID)
+		err := db.QueryRow(`SELECT id FROM artists WHERE name = ?`, m.ArtistName).Scan(&artistID)
 		if err == sql.ErrNoRows {
 			// Artist not found, insert new artist
-			result, err := db.Exec(`INSERT INTO artists (name) VALUES (?)`, m.Artist)
+			result, err := db.Exec(`INSERT INTO artists (name) VALUES (?)`, m.ArtistName)
 			if err != nil {
 				log.Fatal("Failed to insert artist:", err)
 			}
@@ -160,11 +196,16 @@ func importMediaByFile(filename string) {
 		}
 
 		var formatID int
-		err = db.QueryRow(`SELECT id FROM formats WHERE name = ?`, m.Format).Scan(&formatID)
+		err = db.QueryRow(`SELECT id FROM formats WHERE name = ?`, m.FormatName).Scan(&formatID)
 		if err == sql.ErrNoRows {
-			log.Fatal("Format not found:", m.Format)
+			log.Fatal("Format not found:", m.FormatName)
 		} else if err != nil {
 			log.Fatal("Failed to query format:", err)
+		}
+
+		// Normalize genre tags
+		for i, genre := range m.GenreTags {
+			m.GenreTags[i] = NormalizeGenre(db, genre)
 		}
 
 		_, err = db.Exec(`INSERT INTO media (title, date_published, image_url, genre_tags, artist_id, format_id) VALUES (?, ?, ?, ?, ?, ?)`,
@@ -181,25 +222,21 @@ func importMediaByFile(filename string) {
 // initDB initializes the database connection and creates the schema
 func initDB() error {
 	config, err := loadConfig()
-
 	if err != nil {
 		return fmt.Errorf("failed to load config: %v", err)
 	}
 
 	err = connectToMySQL(config)
-
 	if err != nil {
 		return fmt.Errorf("failed to connect to MySQL: %v", err)
 	}
 
 	err = createDatabase(config)
-
 	if err != nil {
 		return fmt.Errorf("failed to create database: %v", err)
 	}
 
 	err = connectToDatabase(config)
-
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
